@@ -1,5 +1,6 @@
 const dao = require('../dao/dao');
 const Blog = require('../models/blog');
+const { tokenIsValid } = require('../utils/login');
 const logger = require('../utils/loggers');
 
 /* eslint-disable no-unused-vars */
@@ -16,22 +17,28 @@ const getAllBlogs = async (req, res, next) => {
 
 const postNewBlog = async (req, res, next) => {
   try {
-    if (
-      !req.body.title ||
-      !req.body.author ||
-      !req.body.url ||
-      !req.body.likes
-    ) {
+    const { authorization } = req.headers;
+    const { title, author, url, likes } = req.body;
+    if (!title || !author || !url || !likes) {
       return res.status(400).json({
-        message: 'Blog requires title, author, url and likes',
+        error: 'Blog requires title, author, url and likes',
+      });
+    }
+
+    const user = await tokenIsValid(authorization);
+
+    if (!user) {
+      return res.status(401).json({
+        error: 'Authorization is missing or is invalid',
       });
     }
 
     const blog = new Blog({
-      title: req.body.title,
-      author: req.body.author,
-      url: req.body.url,
-      likes: req.body.likes,
+      title: title,
+      author: author,
+      url: url,
+      likes: likes,
+      user: user.id,
     });
 
     const response = await dao.createBlog(blog);
@@ -44,16 +51,12 @@ const postNewBlog = async (req, res, next) => {
 
 const putBlog = async (req, res, next) => {
   try {
-    if (
-      !req.body.title ||
-      !req.body.author ||
-      !req.body.url ||
-      !req.body.likes
-    ) {
+    const { title, author, url, likes } = req.body;
+    if (!title || !author || !url || !likes) {
       return res
         .status(400)
         .json({
-          message: 'Blog requires title, author, url and likes',
+          error: 'Blog requires title, author, url and likes',
         })
         .end();
     }

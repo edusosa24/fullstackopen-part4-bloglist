@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const mongoose = require('mongoose');
 const { MONGO_URI } = require('../config/environment');
 const loggers = require('../utils/loggers');
-const router = require('../routes/routes');
+const { router, userRouter, loginRouter } = require('../routes/routes');
 
 const app = express();
 
@@ -46,5 +46,7 @@ mongoose
   });
 
 app.use('/api/blogs', router);
+app.use('/api/users', userRouter);
+app.use('/api/login', loginRouter);
 
 module.exports = app;

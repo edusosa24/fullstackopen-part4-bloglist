@@ -1,7 +1,11 @@
 const Blog = require('../models/blog');
+const User = require('../models/user');
+// const User = require('../models/user');
+
+// BLOG
 
 const findAll = async () => {
-  const data = await Blog.find({});
+  const data = await Blog.find({}).populate('user');
   return data;
 };
 
@@ -20,9 +24,29 @@ const deleteBlog = async (id) => {
   return response;
 };
 
+// USER
+
+const createUser = async (user) => {
+  const data = await user.save();
+  return data;
+};
+
+const getFirstUser = async () => {
+  const data = await User.findOne({});
+  return data;
+};
+
+const getUser = async (username) => {
+  const data = await User.findOne({ username: username });
+  return data;
+};
+
 module.exports = {
   findAll,
   createBlog,
   updateBlog,
   deleteBlog,
+  createUser,
+  getFirstUser,
+  getUser,
 };
